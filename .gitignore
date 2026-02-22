@@ -1,0 +1,70 @@
+# Maven build outputs
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven wrapper (keep mvnw and mvnw.cmd, ignore jar)
+.mvn/wrapper/maven-wrapper.jar
+
+# Allow source code in target folders
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Spring Boot specific
+HELP.md
+**/HELP.md
+
+# Log files
+*.log
+logs/
+**/logs/
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+*.code-workspace
+
+# Application specific - DO NOT IGNORE
+# These are your documentation files
+!README.md
+!MYSQL-RBAC-GUIDE.md
+!IMPLEMENTATION-SUMMARY.md
+!PERMISSION-BASED-AUTHORIZATION.md
+!PERMISSION-IMPLEMENTATION-SUMMARY.md
+!microservice.postman_collection.json

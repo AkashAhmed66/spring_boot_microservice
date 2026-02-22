@@ -1,0 +1,623 @@
+{
+  "info": {
+    "name": "Microservices RBAC API Collection",
+    "description": "Complete API collection for microservices with MySQL and RBAC",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.response.code === 200 && pm.response.json().token) {",
+          "    pm.collectionVariables.set('jwt_token', pm.response.json().token);",
+          "    console.log('JWT Token saved: ' + pm.response.json().token);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "auth_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 && pm.response.json().token) {",
+                  "    pm.collectionVariables.set('jwt_token', pm.response.json().token);",
+                  "    console.log('Token saved from registration');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"fullName\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/register",
+              "host": ["{{auth_url}}"],
+              "path": ["register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 && pm.response.json().token) {",
+                  "    pm.collectionVariables.set('jwt_token', pm.response.json().token);",
+                  "    console.log('Token saved from login');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/login",
+              "host": ["{{auth_url}}"],
+              "path": ["login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Permission Management",
+      "item": [
+        {
+          "name": "Create Permission - Read Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"READ_PRODUCTS\",\n  \"description\": \"Permission to read product data\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"READ\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Permission - Write Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"WRITE_PRODUCTS\",\n  \"description\": \"Permission to create and update products\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"WRITE\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Permission - Delete Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"DELETE_PRODUCTS\",\n  \"description\": \"Permission to delete products\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"DELETE\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permission by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/permissions/1",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permissions by Resource",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/permissions/resource/PRODUCT",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions", "resource", "PRODUCT"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Permission",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/permissions/1?description=Updated permission description",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions", "1"],
+              "query": [
+                {
+                  "key": "description",
+                  "value": "Updated permission description"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Permission",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/permissions/999",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "permissions", "999"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Role Management",
+      "item": [
+        {
+          "name": "Create Role - ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ROLE_ADMIN\",\n  \"description\": \"Administrator role with full access\",\n  \"permissionIds\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/roles",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Role - MANAGER",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ROLE_MANAGER\",\n  \"description\": \"Manager role with limited access\",\n  \"permissionIds\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/roles",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/roles",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/roles/active",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "active"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/roles/2",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "2"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated role description\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/roles/2",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "2"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Permissions to Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleIds\": [3]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/roles/2/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "2", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Permissions from Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleIds\": [3]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/roles/2/permissions",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "2", "permissions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{auth_url}}/api/roles/999",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "roles", "999"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. User Role Management",
+      "item": [
+        {
+          "name": "Assign Roles to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleIds\": [2]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/users/1/roles",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "users", "1", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Roles from User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleIds\": [2]\n}"
+            },
+            "url": {
+              "raw": "{{auth_url}}/api/users/1/roles",
+              "host": ["{{auth_url}}"],
+              "path": ["api", "users", "1", "roles"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Product Service (via Gateway)",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"description\": \"This is a sample product\",\n  \"price\": 99.99,\n  \"stock\": 100,\n  \"category\": \"Electronics\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product\",\n  \"description\": \"This is an updated product\",\n  \"price\": 149.99,\n  \"stock\": 50,\n  \"category\": \"Electronics\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
