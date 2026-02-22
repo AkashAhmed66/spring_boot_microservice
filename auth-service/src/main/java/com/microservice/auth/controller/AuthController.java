@@ -1,6 +1,7 @@
 package com.microservice.auth.controller;
 
 import com.microservice.auth.dto.AuthResponse;
+import com.microservice.auth.dto.ChangePasswordRequest;
 import com.microservice.auth.dto.LoginRequest;
 import com.microservice.auth.dto.RegisterRequest;
 import com.microservice.auth.service.AuthService;
@@ -37,6 +38,24 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(AuthResponse.builder()
+                            .message(e.getMessage())
+                            .build());
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<AuthResponse> changePassword(
+            @RequestHeader("X-User-Email") String email,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        try {
+            authService.changePassword(email, request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok(AuthResponse.builder()
+                    .message("Password changed successfully")
+                    .build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(AuthResponse.builder()
                             .message(e.getMessage())
                             .build());

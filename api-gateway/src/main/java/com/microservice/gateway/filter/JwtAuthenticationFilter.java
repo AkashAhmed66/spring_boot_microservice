@@ -73,7 +73,8 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return path.contains("/auth/register") || 
                path.contains("/auth/login") ||
                path.contains("/eureka") ||
-               path.contains("/actuator");
+               path.contains("/actuator")|| 
+               path.contains("/public");
     }
 
     private void validateToken(String token) {

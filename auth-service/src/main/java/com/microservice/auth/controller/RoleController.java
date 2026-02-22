@@ -4,6 +4,7 @@ import com.microservice.auth.dto.AssignRolesRequest;
 import com.microservice.auth.dto.CreateRoleRequest;
 import com.microservice.auth.dto.UpdateRoleRequest;
 import com.microservice.auth.entity.Role;
+import com.microservice.auth.security.RequirePermission;
 import com.microservice.auth.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
+    @RequirePermission("CREATE_ROLE")
     public ResponseEntity<Role> createRole(@Valid @RequestBody CreateRoleRequest request) {
         Role role = roleService.createRole(
                 request.getName(),
@@ -31,21 +33,25 @@ public class RoleController {
     }
 
     @GetMapping
+    @RequirePermission("READ_ROLE")
     public ResponseEntity<List<Role>> getAllRoles() {
         return ResponseEntity.ok(roleService.getAllRoles());
     }
 
     @GetMapping("/active")
+    @RequirePermission("READ_ROLE")
     public ResponseEntity<List<Role>> getActiveRoles() {
         return ResponseEntity.ok(roleService.getActiveRoles());
     }
 
     @GetMapping("/{id}")
+    @RequirePermission("READ_ROLE")
     public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
     @PutMapping("/{id}")
+    @RequirePermission("UPDATE_ROLE")
     public ResponseEntity<Role> updateRole(
             @PathVariable Long id,
             @RequestBody UpdateRoleRequest request
@@ -54,6 +60,7 @@ public class RoleController {
     }
 
     @PostMapping("/{roleId}/permissions")
+    @RequirePermission("ASSIGN_PERMISSIONS")
     public ResponseEntity<Role> addPermissionsToRole(
             @PathVariable Long roleId,
             @Valid @RequestBody AssignRolesRequest request
@@ -62,6 +69,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{roleId}/permissions")
+    @RequirePermission("ASSIGN_PERMISSIONS")
     public ResponseEntity<Role> removePermissionsFromRole(
             @PathVariable Long roleId,
             @Valid @RequestBody AssignRolesRequest request
@@ -70,6 +78,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
+    @RequirePermission("DELETE_ROLE")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
