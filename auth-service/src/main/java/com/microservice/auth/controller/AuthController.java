@@ -4,6 +4,7 @@ import com.microservice.auth.dto.AuthResponse;
 import com.microservice.auth.dto.ChangePasswordRequest;
 import com.microservice.auth.dto.LoginRequest;
 import com.microservice.auth.dto.RegisterRequest;
+import com.microservice.auth.security.AuthenticationService;
 import com.microservice.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -46,10 +48,10 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public ResponseEntity<AuthResponse> changePassword(
-            @RequestHeader("X-User-Email") String email,
             @Valid @RequestBody ChangePasswordRequest request
     ) {
         try {
+            String email = authenticationService.requireCurrentUserEmail();
             authService.changePassword(email, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(AuthResponse.builder()
                     .message("Password changed successfully")
@@ -65,5 +67,21 @@ public class AuthController {
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Auth Service is running");
+    }
+
+    @GetMapping("/user-info")
+    public ResponseEntity<String> getUserInfo() {
+        
+        if (!authenticationService.isAuthenticated()) {
+            return ResponseEntity.ok("User Info - Not authenticated");
+        }
+        
+        return ResponseEntity.ok(String.format(
+            "User Info - ID: %s, Email: %s, Name: %s, Roles: %s, Permissions: %s", 
+            authenticationService.getCurrentUserId(),
+            authenticationService.getCurrentUserEmail(),
+            authenticationService.getCurrentUserFullName(),
+            String.join(", ", authenticationService.getCurrentUserRoles()),
+            String.join(", ", authenticationService.getCurrentUserPermissions())));
     }
 }

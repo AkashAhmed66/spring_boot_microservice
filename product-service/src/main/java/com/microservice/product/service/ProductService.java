@@ -25,7 +25,6 @@ public class ProductService {
                 .price(request.getPrice())
                 .stock(request.getStock())
                 .category(request.getCategory())
-                .createdBy(userEmail)
                 .build();
 
         product = productRepository.save(product);

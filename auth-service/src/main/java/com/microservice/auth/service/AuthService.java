@@ -67,7 +67,7 @@ public class AuthService {
                 .collect(Collectors.joining(","));
 
         // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail(), user.getFullName(), rolesStr, permissionsStr);
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getFullName(), rolesStr, permissionsStr);
 
         return AuthResponse.builder()
                 .token(token)
@@ -112,7 +112,7 @@ public class AuthService {
                 .collect(Collectors.joining(","));
 
         // Generate JWT token
-        String token = jwtUtil.generateToken(user.getEmail(), user.getFullName(), rolesStr, permissionsStr);
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getFullName(), rolesStr, permissionsStr);
 
         return AuthResponse.builder()
                 .token(token)
