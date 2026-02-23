@@ -8,20 +8,22 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/**
-          filters:
-            - RewritePath=/auth/(?<segment>.*), /${segment}
-            
         - id: product-service
           uri: lb://product-service
           predicates:
             - Path=/products/**
           filters:
             - JwtAuthenticationFilter
-            - RewritePath=/products/(?<segment>.*), /${segment}
+            
+        - id: auth-api-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/**
+          
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/register, /login, /change-password, /logout, /refresh-token, /init/**
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 

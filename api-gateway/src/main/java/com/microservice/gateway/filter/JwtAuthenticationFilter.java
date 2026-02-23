@@ -70,10 +70,13 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
     private boolean isAuthEndpoint(ServerHttpRequest request) {
         String path = request.getURI().getPath();
-        return path.contains("/auth/register") || 
-               path.contains("/auth/login") ||
+        return path.equals("/register") || 
+               path.equals("/login") ||
+               path.equals("/change-password") ||
+               path.startsWith("/api/") ||
+               path.startsWith("/init/") ||
                path.contains("/eureka") ||
-               path.contains("/actuator")|| 
+               path.contains("/actuator") || 
                path.contains("/public");
     }
 

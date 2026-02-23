@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Microservices RBAC API Collection",
-    "description": "Complete API collection for microservices with MySQL and RBAC",
+    "description": "Complete API collection for microservices with MySQL and RBAC via API Gateway (Port 8080).\n\n## Setup Instructions:\n1. Start Service Registry (port 8761)\n2. Start Auth Service (port 8081)\n3. Start Product Service (port 8082)\n4. Start API Gateway (port 8080)\n5. Call 'Initialize Admin Data' endpoint to set up admin user\n6. Use 'Login Admin' to get JWT token\n\n## Key Features:\n- All requests route through API Gateway (localhost:8080)\n- JWT-based authentication\n- Role-Based Access Control (RBAC)\n- Manual admin initialization\n\n## Default Admin Credentials:\n- Email: admin@example.com\n- Password: admin123",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -30,13 +30,8 @@
   ],
   "variable": [
     {
-      "key": "base_url",
+      "key": "gateway_url",
       "value": "http://localhost:8080",
-      "type": "string"
-    },
-    {
-      "key": "auth_url",
-      "value": "http://localhost:8081",
       "type": "string"
     },
     {
@@ -46,6 +41,62 @@
     }
   ],
   "item": [
+    {
+      "name": "0. System Initialization",
+      "item": [
+        {
+          "name": "Initialize Admin Data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/init/admin",
+              "host": ["{{gateway_url}}"],
+              "path": ["init", "admin"]
+            },
+            "description": "Initialize admin user and default permissions/roles. Call this once after starting the services."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 && pm.response.json().token) {",
+                  "    pm.collectionVariables.set('jwt_token', pm.response.json().token);",
+                  "    console.log('Admin token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/login",
+              "host": ["{{gateway_url}}"],
+              "path": ["login"]
+            },
+            "description": "Login with admin credentials created during initialization"
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "1. Authentication",
       "item": [
@@ -78,8 +129,8 @@
               "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"fullName\": \"John Doe\"\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/register",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/register",
+              "host": ["{{gateway_url}}"],
               "path": ["register"]
             }
           },
@@ -114,10 +165,49 @@
               "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/login",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/login",
+              "host": ["{{gateway_url}}"],
               "path": ["login"]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-User-Email",
+                "value": "user@example.com",
+                "type": "text",
+                "description": "Email of the user changing password"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newPassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/change-password",
+              "host": ["{{gateway_url}}"],
+              "path": ["change-password"]
+            },
+            "description": "Change user password (requires authentication)"
           },
           "response": []
         }
@@ -141,8 +231,8 @@
               "raw": "{\n  \"name\": \"READ_PRODUCTS\",\n  \"description\": \"Permission to read product data\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"READ\"\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions"]
             }
           },
@@ -163,8 +253,8 @@
               "raw": "{\n  \"name\": \"WRITE_PRODUCTS\",\n  \"description\": \"Permission to create and update products\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"WRITE\"\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions"]
             }
           },
@@ -185,8 +275,8 @@
               "raw": "{\n  \"name\": \"DELETE_PRODUCTS\",\n  \"description\": \"Permission to delete products\",\n  \"resource\": \"PRODUCT\",\n  \"action\": \"DELETE\"\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions"]
             }
           },
@@ -198,8 +288,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions"]
             }
           },
@@ -211,8 +301,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/permissions/1",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions/1",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions", "1"]
             }
           },
@@ -224,8 +314,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/permissions/resource/PRODUCT",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions/resource/PRODUCT",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions", "resource", "PRODUCT"]
             }
           },
@@ -237,8 +327,8 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/permissions/1?description=Updated permission description",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions/1?description=Updated permission description",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions", "1"],
               "query": [
                 {
@@ -256,8 +346,8 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/permissions/999",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/permissions/999",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "permissions", "999"]
             }
           },
@@ -283,8 +373,8 @@
               "raw": "{\n  \"name\": \"ROLE_ADMIN\",\n  \"description\": \"Administrator role with full access\",\n  \"permissionIds\": [1, 2, 3]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/roles",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles"]
             }
           },
@@ -305,8 +395,8 @@
               "raw": "{\n  \"name\": \"ROLE_MANAGER\",\n  \"description\": \"Manager role with limited access\",\n  \"permissionIds\": [1, 2]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/roles",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles"]
             }
           },
@@ -318,8 +408,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/roles",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles"]
             }
           },
@@ -331,8 +421,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/roles/active",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/active",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "active"]
             }
           },
@@ -344,8 +434,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/roles/2",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/2",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "2"]
             }
           },
@@ -366,8 +456,8 @@
               "raw": "{\n  \"description\": \"Updated role description\",\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/roles/2",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/2",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "2"]
             }
           },
@@ -388,8 +478,8 @@
               "raw": "{\n  \"roleIds\": [3]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/roles/2/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/2/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "2", "permissions"]
             }
           },
@@ -410,8 +500,8 @@
               "raw": "{\n  \"roleIds\": [3]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/roles/2/permissions",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/2/permissions",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "2", "permissions"]
             }
           },
@@ -423,8 +513,8 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{auth_url}}/api/roles/999",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/roles/999",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "roles", "999"]
             }
           },
@@ -450,8 +540,8 @@
               "raw": "{\n  \"roleIds\": [2]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/users/1/roles",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/users/1/roles",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "users", "1", "roles"]
             }
           },
@@ -472,8 +562,8 @@
               "raw": "{\n  \"roleIds\": [2]\n}"
             },
             "url": {
-              "raw": "{{auth_url}}/api/users/1/roles",
-              "host": ["{{auth_url}}"],
+              "raw": "{{gateway_url}}/api/users/1/roles",
+              "host": ["{{gateway_url}}"],
               "path": ["api", "users", "1", "roles"]
             }
           },
@@ -509,8 +599,8 @@
               "raw": "{\n  \"name\": \"Sample Product\",\n  \"description\": \"This is a sample product\",\n  \"price\": 99.99,\n  \"stock\": 100,\n  \"category\": \"Electronics\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/products",
-              "host": ["{{base_url}}"],
+              "raw": "{{gateway_url}}/products",
+              "host": ["{{gateway_url}}"],
               "path": ["products"]
             }
           },
@@ -532,8 +622,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/products",
-              "host": ["{{base_url}}"],
+              "raw": "{{gateway_url}}/products",
+              "host": ["{{gateway_url}}"],
               "path": ["products"]
             }
           },
@@ -555,8 +645,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/products/1",
-              "host": ["{{base_url}}"],
+              "raw": "{{gateway_url}}/products/1",
+              "host": ["{{gateway_url}}"],
               "path": ["products", "1"]
             }
           },
@@ -587,8 +677,8 @@
               "raw": "{\n  \"name\": \"Updated Product\",\n  \"description\": \"This is an updated product\",\n  \"price\": 149.99,\n  \"stock\": 50,\n  \"category\": \"Electronics\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/products/1",
-              "host": ["{{base_url}}"],
+              "raw": "{{gateway_url}}/products/1",
+              "host": ["{{gateway_url}}"],
               "path": ["products", "1"]
             }
           },
@@ -610,8 +700,8 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/products/1",
-              "host": ["{{base_url}}"],
+              "raw": "{{gateway_url}}/products/1",
+              "host": ["{{gateway_url}}"],
               "path": ["products", "1"]
             }
           },
@@ -621,3 +711,4 @@
     }
   ]
 }
+

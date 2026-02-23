@@ -18,7 +18,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/actuator/**").permitAll()
+                .requestMatchers("/register", "/login", "/init/**", "/actuator/**").permitAll()
                 .requestMatchers("/api/**").permitAll() // TODO: In production, protect with admin role
                 .anyRequest().authenticated()
             )

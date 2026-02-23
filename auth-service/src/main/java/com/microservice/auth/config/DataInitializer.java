@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * DataInitializer runs on application startup and creates:
+ * DataInitializer service for manual initialization of:
  * - Admin permissions (User, Role, Permission management)
  * - Product permissions (READ, WRITE, DELETE)
  * - ADMIN role with all permissions
@@ -26,16 +26,21 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DataInitializer implements CommandLineRunner {
+public class DataInitializer {
 
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Override
     @Transactional
-    public void run(String... args) {
+    public String initializeData() {
+        // Check if initialization is needed
+        if (userRepository.existsByEmail("admin@example.com")) {
+            log.info("Data already initialized. Skipping initialization...");
+            return "Data already initialized. Admin user exists.";
+        }
+        
         log.info("Starting data initialization...");
 
         // Create permissions
@@ -48,6 +53,7 @@ public class DataInitializer implements CommandLineRunner {
         createAdminUserIfNotExist();
 
         log.info("Data initialization completed successfully!");
+        return "Data initialization completed successfully! Admin credentials - Email: admin@example.com, Password: admin123";
     }
 
     private void createPermissionsIfNotExist() {

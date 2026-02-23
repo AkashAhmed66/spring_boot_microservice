@@ -1,10 +1,7 @@
 package com.microservice.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,11 +9,16 @@ import java.util.Set;
 
 @Entity
 @Table(name = "permissions")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "roles")
 public class Permission {
+
+    @EqualsAndHashCode.Include
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
